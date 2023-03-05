@@ -43,8 +43,10 @@ server.get('/newMovie', newMovieHandler)
 server.get('/Search', searchHandler)
 server.get('/Trending', trendingHandler)
 server.get('/Certifications', certificationsHandler)
-server.post('/addMovie ', postMovieHandler)
+server.post('/addMovie', postMovieHandler)
 server.get('/getMovies', getMovieHandler)
+// server.delete('/favRecipes/:id',deleteMovie)
+// server.put('/favRecipes/:id',updateMovie)
 server.get('*', defaltHandler)
 
 
@@ -235,6 +237,38 @@ function getMovieHandler(req,res) {
         errorHandler(err,req,res);
     })
 }
+
+// function deleteMovie(req,res) {
+//     //delete some data from the database
+//     // console.log(req.params.id); //to get the path prameters
+//     const num = req.params.num;
+//     const sql = `DELETE FROM topmovie WHERE id=${num}`;
+//     client.query(sql)
+//     .then((data)=>{
+//         res.status(204).json({});
+//     })
+//     .catch((err)=>{
+//         errorHandler(err,req,res);
+//     })
+
+// }
+
+
+
+// function updateMovie(req,res) {
+//     const num = req.params.num;
+//     console.log(num);
+//     console.log(req.body);
+//     const sql = `UPDATE topmovie SET id=$1, title=$2, release_date=$3, poster_path=$4, overview=$5, commint=$6 WHERE num=${num} RETURNING *`;
+//     const values = [req.body.title,req.body.min,req.body.summary];
+//     client.query(sql,values)
+//     .then((data)=>{
+//         res.status(200).send(data.rows);
+//     })
+//     .catch((err)=>{
+//         errorHandler(err,req,res);
+//     })
+// }
 
 
 
