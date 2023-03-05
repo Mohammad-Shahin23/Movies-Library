@@ -10,8 +10,10 @@ const server = express();
 
 
 const axios = require('axios');
+
 const { response } = require('express');
 require('dotenv').config();
+const pg = require('pg');
 
 
 
@@ -19,8 +21,11 @@ require('dotenv').config();
 //server open for all clients requests
 server.use(cors());
 server.use(errorHandler)
+server.use(express.json());
 
 const PORT = 3000;
+
+const client = new pg.Client(process.env.DATABASE_URL);
 
 //constructor
 function Movies(id, title , release_date , poster_path, overview) {
@@ -38,6 +43,8 @@ server.get('/newMovie', newMovieHandler)
 server.get('/Search', searchHandler)
 server.get('/Trending', trendingHandler)
 server.get('/Certifications', certificationsHandler)
+server.post('/addMovie ', postMovieHandler)
+server.get('/getMovies', getMovieHandler)
 server.get('*', defaltHandler)
 
 
@@ -199,6 +206,38 @@ function certificationsHandler(req, res) {
 
 
 
+
+function postMovieHandler(req,res) {
+    const favMovie = req.body; //by default we cant see the body content
+    console.log(favMovie);
+    const sql = `INSERT INTO topmovie (id, title, release_date, poster_path, overview) VALUES ($1,$2,$3,$4,$5) RETURNING *`;
+    const values = [favMovie.id, favMovie.title, favMovie.release_date,  favMovie.poster_path, favMovie.overview];
+    console.log(sql);
+
+    client.query(sql,values)
+    .then((data) => {
+        res.send("your data was added !");
+    })
+        .catch(error => {
+            // console.log(error);
+            errorHandler(error, req, res);
+        });
+}
+
+function getMovieHandler(req,res) {
+    // return all fav recipes (favREcipes tabel content)
+    const sql = `SELECT * FROM topmovie`;
+    client.query(sql)
+    .then((data)=>{
+        res.send(data.rows);
+    })
+    .catch((err)=>{
+        errorHandler(err,req,res);
+    })
+}
+
+
+
 //middleware function
 function errorHandler(error, req, res, next) {
     const err = {
@@ -212,8 +251,10 @@ function errorHandler(error, req, res, next) {
 
 
 // http://localhost:3000 => (Ip = localhost) (port = 3000)
-server.listen(PORT, () => {
-    console.log(`listening on ${PORT} : I am ready`);
+client.connect()
+.then(()=>{
+    server.listen(PORT, () => {
+        console.log(`listening on ${PORT} : I am ready`);
+    });  
 })
-
 
